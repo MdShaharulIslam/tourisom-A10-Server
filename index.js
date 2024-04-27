@@ -11,7 +11,7 @@ app.use(cors());
 app.use(express.json());
 
 
-const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.lcvsatz.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
+const uri = `mongodb+srv://${process.env.TB_USER}:${process.env.TB_PASS}@cluster0.lcvsatz.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 console.log(uri);
 const client = new MongoClient(uri, {
   serverApi: {
@@ -26,18 +26,18 @@ async function run() {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
 
-const coffeeCollection = client.db('coffeeDB').collection('coffee')
+const tourismCollection = client.db('tourismDB').collection('tourism')
 
-app.get('/coffee', async(req,res) =>{
-  const cursor = coffeeCollection.find();
+app.get('/tourism', async(req,res) =>{
+  const cursor = tourismCollection.find();
   const result = await cursor.toArray();
   res.send(result);
 })
  
-app.post('/coffee',async(req,res)=>{
-  const newCoffee = req.body;
-  console.log(newCoffee);
-  const result = await coffeeCollection.insertOne(newCoffee);
+app.post('/tourism',async(req,res)=>{
+  const tourism = req.body;
+  console.log(tourism);
+  const result = await tourismCollection.insertOne(tourism);
   res.send(result);
 })
 
