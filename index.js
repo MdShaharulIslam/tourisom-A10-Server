@@ -1,66 +1,68 @@
 const express = require('express');
 const cors = require('cors');
-const app = express();
+const { MongoClient } = require('mongodb');
 require('dotenv').config();
-const { MongoClient, ServerApiVersion } = require('mongodb');
-const port =process.env.PORT||5000;
 
-// middlewere
+const app = express();
+const port = process.env.PORT || 5000;
 
+// Middleware
 app.use(cors());
 app.use(express.json());
-
 
 const uri = `mongodb+srv://${process.env.TB_USER}:${process.env.TB_PASS}@cluster0.lcvsatz.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 console.log(uri);
 const client = new MongoClient(uri, {
-  serverApi: {
-    version: ServerApiVersion.v1,
-    strict: true,
-    deprecationErrors: true,
-  }
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
 });
 
 async function run() {
   try {
-    // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
 
-const tourismCollection = client.db('tourismDB').collection('tourism')
-
-app.get('/tourism', async(req,res) =>{
-  const cursor = tourismCollection.find();
-  const result = await cursor.toArray();
-  res.send(result);
-})
- 
-app.post('/tourism',async(req,res)=>{
-  const tourism = req.body;
-  console.log(tourism);
-  const result = await tourismCollection.insertOne(tourism);
-  res.send(result);
-})
-
-
-
+    const db = client.db('tourismDB');
+    const tourismCollection = db.collection('tourism');
     
-    // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
-    console.log("Pinged your deployment. You successfully connected to MongoDB!");
+
+    // Route to get tourism data
+    app.get('/tourism', async (req, res) => {
+      try {
+        const result = await tourismCollection.find().toArray();
+        res.json(result);
+      } catch (error) {
+        console.error("Error fetching tourism data:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+      }
+    });
+
+    // Route to insert tourism data
+    app.post('/tourism', async (req, res) => {
+      try {
+        const tourism = req.body;
+        const result = await tourismCollection.insertOne(tourism);
+        res.json(result.ops[0]);
+      } catch (error) {
+        console.error("Error inserting tourism data:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+      }
+    });
+
+    // Route to get a specific homeData document by ID
+    
+    
+
+    console.log("Connected to MongoDB");
+
+    // Start the server
+    app.listen(port, () => {
+      console.log(`Server is running on port ${port}`);
+    });
+
   } finally {
-    // Ensures that the client will close when you finish/error
+    // Close the connection after finishing operations
     // await client.close();
   }
 }
-run().catch(console.dir);
 
-
-
-
-app.get('/', (req,res) =>{
-    res.send('Tourism Bangladesh Server')
-})
-app.listen(port, ()=>{
-    console.log(`Tourism Bangladeshis running: ${port}`);
-});
-
+run().catch(console.error);
