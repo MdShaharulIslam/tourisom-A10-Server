@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const { MongoClient } = require('mongodb');
+const { MongoClient, ObjectId } = require('mongodb');
 require('dotenv').config();
 
 const app = express();
@@ -24,7 +24,6 @@ async function run() {
     const db = client.db('tourismDB');
     const tourismCollection = db.collection('tourism');
     
-
     // Route to get tourism data
     app.get('/tourism', async (req, res) => {
       try {
@@ -47,10 +46,40 @@ async function run() {
         res.status(500).json({ error: "Internal Server Error" });
       }
     });
+    app.put('/tourism/:id',async(req,res)=>{
+      console.log(req.params.id)
+      const query ={_id:new ObjectId(req.params.id)}
+      const data= {
+          $set:{
+              photoUrl:req.body.photoUrl ,
+              countryName:req.body.countryName,
+              location:req.body.location ,
+              discription:req.body.discription,
+              seassonality:req.body.seassonality,
+              avarageCost:req.body.avarageCost,
+              travelTime:req.body.travelTime,
+              totalVisitorPerYear:req.body.totalVisitorPerYear
 
-    // Route to get a specific homeData document by ID
+          }
+      }
+      const result = await tourismCollection.updateOne(query,data)
+      console.log(result);
+      res.send(result)
+  });
+  
+    app.delete('/tourism/:id', async (req,res) =>{
+      const id = req.params.id;
+      const query ={_id:new ObjectId(id)}
+      const result = await tourismCollection.deleteOne(query);
+      res.send(result)
+    })
     
-    
+    app.get('/tourism/:id', async(req,res)=>{
+      const id =req.params.id;
+      const query = {_id: new ObjectId(id)}
+      const result = await tourismCollection.findOne(query);
+      res.send(result)
+    })
 
     console.log("Connected to MongoDB");
 
