@@ -2,7 +2,6 @@ const express = require('express');
 const cors = require('cors');
 const { MongoClient, ObjectId } = require('mongodb');
 require('dotenv').config();
-
 const app = express();
 const port = process.env.PORT || 5000;
 // Middleware
@@ -55,7 +54,6 @@ async function run() {
               avarageCost:req.body.avarageCost,
               travelTime:req.body.travelTime,
               totalVisitorPerYear:req.body.totalVisitorPerYear
-
           }
       }
       const result = await tourismCollection.updateOne(query,data)
