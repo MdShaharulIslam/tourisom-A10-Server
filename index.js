@@ -15,15 +15,13 @@ const client = new MongoClient(uri, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
-
 async function run() {
   try {
     // await client.connect();
 
     const db = client.db('tourismDB');
     const tourismCollection = db.collection('tourism');
-    
-    // Route to get tourism data
+     
     app.get('/tourism', async (req, res) => {
       try {
         const result = await tourismCollection.find().toArray();
